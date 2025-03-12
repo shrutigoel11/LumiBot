@@ -1,402 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LumiBot</title>
     <style>
-        /* Global Styles */
-        :root {
-            --primary-color: #4a6cf7;
-            --secondary-color: #32334a;
-            --light-bg: #f5f7ff;
-            --dark-text: #32334a;
-            --light-text: #ffffff;
-            --message-bg: #f0f2ff;
-            --user-message-bg: #4a6cf7;
-            --border-radius: 16px;
-            --shadow: 0 8px 24px rgba(74, 108, 247, 0.12);
-            --transition: all 0.3s ease;
-        }
+      /* Global Styles */
+      :root {
+        --primary-color: #4a6cf7;
+        --secondary-color: #32334a;
+        --light-bg: #f5f7ff;
+        --dark-text: #32334a;
+        --light-text: #ffffff;
+        --message-bg: #f0f2ff;
+        --user-message-bg: #4a6cf7;
+        --border-radius: 16px;
+        --shadow: 0 8px 24px rgba(74, 108, 247, 0.12);
+        --transition: all 0.3s ease;
+      }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--light-bg);
-            color: var(--dark-text);
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            line-height: 1.6;
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, sans-serif;
+        background: var(--light-bg);
+        color: var(--dark-text);
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      h1 {
+        text-align: center;
+        color: var(--secondary-color);
+        font-size: 2.2rem;
+        margin-bottom: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      h1::before {
+        content: "";
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        position: relative;
+      }
+
+      /* Chat Container */
+      .chat-container {
+        background: #fff;
+        border-radius: var(--border-radius);
+        padding: 24px;
+        height: 550px;
+        overflow-y: auto;
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+        position: relative;
+      }
+
+      /* Message Styles */
+      .user-message,
+      .bot-message {
+        padding: 14px 20px;
+        margin: 10px 0;
+        border-radius: var(--border-radius);
+        max-width: 75%;
+        line-height: 1.6;
+        position: relative;
+        opacity: 0;
+        animation: fadeIn 0.5s forwards, slideIn 0.4s forwards;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+
+      .user-message {
+        background: var(--user-message-bg);
+        color: var(--light-text);
+        align-self: flex-end;
+        border-bottom-right-radius: 6px;
+      }
+
+      .bot-message {
+        background: var(--message-bg);
+        color: var(--dark-text);
+        align-self: flex-start;
+        border-bottom-left-radius: 6px;
+      }
+
+      .bot-message ul {
+        padding-left: 20px;
+        margin: 10px 0;
+      }
+
+      .bot-message li {
+        margin-bottom: 6px;
+      }
+
+      .message-time {
+        font-size: 0.75rem;
+        color: rgba(0, 0, 0, 0.4);
+        position: absolute;
+        bottom: -18px;
+        right: 8px;
+      }
+
+      .user-message .message-time {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Input Area */
+      .input-area {
+        background: #fff;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      .input-container {
+        display: flex;
+        gap: 12px;
+        position: relative;
+        margin-top: 10px;
+      }
+
+      #user-input {
+        flex-grow: 1;
+        padding: 16px 20px;
+        border: 2px solid #e1e5f0;
+        border-radius: 30px;
+        font-size: 16px;
+        transition: var(--transition);
+        background: #fff;
+        color: var(--dark-text);
+        outline: none;
+      }
+
+      #user-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+      }
+
+      #send-button {
+        padding: 0;
+        width: 54px;
+        height: 54px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #send-button:hover {
+        background-color: #3a56d4;
+        transform: translateY(-2px);
+      }
+
+      #send-button svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .clearfix:after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      /* Button suggestions */
+      .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0;
+      }
+
+      .suggestion-button {
+        background: #fff;
+        border: 1px solid #e1e5f0;
+        border-radius: 24px;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--dark-text);
+        font-weight: 500;
+      }
+
+      .suggestion-button:hover {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+      }
+
+      /* Typing Indicator */
+      .typing-indicator {
+        display: none;
+        background: var(--message-bg);
+        border-radius: var(--border-radius);
+        padding: 12px 18px;
+        margin: 8px 0;
+        width: fit-content;
+        align-self: flex-start;
+      }
+
+      .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: var(--primary-color);
+        display: inline-block;
+        border-radius: 50%;
+        margin: 0 2px;
+        opacity: 0.7;
+        animation: typing 1.2s infinite;
+      }
+
+      .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      /* Error message */
+      .error-message {
+        color: #e74c3c;
+        font-size: 0.9em;
+        margin-top: 15px;
+        text-align: center;
+        padding: 8px 12px;
+        background-color: rgba(231, 76, 60, 0.1);
+        border-radius: 8px;
+        display: none;
+      }
+
+      .error-message.visible {
+        display: block;
+        animation: shake 0.6s;
+      }
+
+      /* Day/Night Toggle */
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--dark-text);
+        font-size: 20px;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+      }
+
+      .theme-toggle:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      /* Keyframes */
+      @keyframes typing {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideIn {
+        0% {
+          transform: translateY(10px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+          transform: translateX(-5px);
+        }
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* Dark Mode */
+      body.dark-mode {
+        --primary-color: #6d8bff;
+        --secondary-color: #e1e5f0;
+        --light-bg: #1a1c2e;
+        --dark-text: #e1e5f0;
+        --light-text: #ffffff;
+        --message-bg: #282a42;
+        --user-message-bg: #6d8bff;
+      }
+
+      body.dark-mode .chat-container,
+      body.dark-mode .input-area {
+        background: #232538;
+      }
+
+      body.dark-mode #user-input {
+        background: #282a42;
+        border-color: #323452;
+        color: #e1e5f0;
+      }
+
+      body.dark-mode .suggestion-button {
+        background: #282a42;
+        border-color: #323452;
+        color: #e1e5f0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .user-message,
+        .bot-message {
+          max-width: 85%;
         }
 
         h1 {
-            text-align: center;
-            color: var(--secondary-color);
-            font-size: 2.2rem;
-            margin-bottom: 24px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+          font-size: 1.8rem;
         }
 
-        h1::before {
-            content: "";
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        /* Chat Container */
         .chat-container {
-            background: #fff;
-            border-radius: var(--border-radius);
-            padding: 24px;
-            height: 550px;
-            overflow-y: auto;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            scroll-behavior: smooth;
-            position: relative;
+          height: 400px;
         }
-
-        /* Message Styles */
-        .user-message, .bot-message {
-            padding: 14px 20px;
-            margin: 10px 0;
-            border-radius: var(--border-radius);
-            max-width: 75%;
-            line-height: 1.6;
-            position: relative;
-            opacity: 0;
-            animation: fadeIn 0.5s forwards, slideIn 0.4s forwards;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .user-message {
-            background: var(--user-message-bg);
-            color: var(--light-text);
-            align-self: flex-end;
-            border-bottom-right-radius: 6px;
-        }
-
-        .bot-message {
-            background: var(--message-bg);
-            color: var(--dark-text);
-            align-self: flex-start;
-            border-bottom-left-radius: 6px;
-        }
-
-        .bot-message ul {
-            padding-left: 20px;
-            margin: 10px 0;
-        }
-
-        .bot-message li {
-            margin-bottom: 6px;
-        }
-
-        .message-time {
-            font-size: 0.75rem;
-            color: rgba(0, 0, 0, 0.4);
-            position: absolute;
-            bottom: -18px;
-            right: 8px;
-        }
-
-        .user-message .message-time {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Input Area */
-        .input-area {
-            background: #fff;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .input-container {
-            display: flex;
-            gap: 12px;
-            position: relative;
-            margin-top: 10px;
-        }
-
-        #user-input {
-            flex-grow: 1;
-            padding: 16px 20px;
-            border: 2px solid #e1e5f0;
-            border-radius: 30px;
-            font-size: 16px;
-            transition: var(--transition);
-            background: #fff;
-            color: var(--dark-text);
-            outline: none;
-        }
-
-        #user-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
-        }
-
-        #send-button {
-            padding: 0;
-            width: 54px;
-            height: 54px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #send-button:hover {
-            background-color: #3a56d4;
-            transform: translateY(-2px);
-        }
-
-        #send-button svg {
-            width: 22px;
-            height: 22px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .clearfix:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        /* Button suggestions */
-        .suggestions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .suggestion-button {
-            background: #fff;
-            border: 1px solid #e1e5f0;
-            border-radius: 24px;
-            padding: 10px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--dark-text);
-            font-weight: 500;
-        }
-
-        .suggestion-button:hover {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
-        }
-
-        /* Typing Indicator */
-        .typing-indicator {
-            display: none;
-            background: var(--message-bg);
-            border-radius: var(--border-radius);
-            padding: 12px 18px;
-            margin: 8px 0;
-            width: fit-content;
-            align-self: flex-start;
-        }
-
-        .typing-indicator span {
-            height: 8px;
-            width: 8px;
-            background-color: var(--primary-color);
-            display: inline-block;
-            border-radius: 50%;
-            margin: 0 2px;
-            opacity: 0.7;
-            animation: typing 1.2s infinite;
-        }
-
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        /* Error message */
-        .error-message {
-            color: #e74c3c;
-            font-size: 0.9em;
-            margin-top: 15px;
-            text-align: center;
-            padding: 8px 12px;
-            background-color: rgba(231, 76, 60, 0.1);
-            border-radius: 8px;
-            display: none;
-        }
-
-        .error-message.visible {
-            display: block;
-            animation: shake 0.6s;
-        }
-
-        /* Day/Night Toggle */
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--dark-text);
-            font-size: 20px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .theme-toggle:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        /* Keyframes */
-        @keyframes typing {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            0% { transform: translateY(10px); }
-            100% { transform: translateY(0); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        /* Dark Mode */
-        body.dark-mode {
-            --primary-color: #6d8bff;
-            --secondary-color: #e1e5f0;
-            --light-bg: #1a1c2e;
-            --dark-text: #e1e5f0;
-            --light-text: #ffffff;
-            --message-bg: #282a42;
-            --user-message-bg: #6d8bff;
-        }
-
-        body.dark-mode .chat-container,
-        body.dark-mode .input-area {
-            background: #232538;
-        }
-
-        body.dark-mode #user-input {
-            background: #282a42;
-            border-color: #323452;
-            color: #e1e5f0;
-        }
-
-        body.dark-mode .suggestion-button {
-            background: #282a42;
-            border-color: #323452;
-            color: #e1e5f0;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .user-message, .bot-message {
-                max-width: 85%;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .chat-container {
-                height: 400px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>LumiBot</h1>
     <div class="chat-container" id="chat-container">
-        <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-        </button>
-        
-        <div class="bot-message">
-            <p>👋 Hello! I'm your AI assistant. I can help with:</p>
-            <ul>
-                <li>General questions</li>
-                <li>Math calculations</li>
-                <li>Telling jokes</li>
-                <li>Simulated weather info</li>
-                <li>Current time and date</li>
-            </ul>
-            <p>How can I help you today?</p>
-            <div class="message-time">Just now</div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="typing-indicator" id="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="clearfix"></div>
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        title="Toggle dark/light mode"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </svg>
+      </button>
+
+      <div class="bot-message">
+        <p>👋 Hello! I'm your AI assistant. I can help with:</p>
+        <ul>
+          <li>General questions</li>
+          <li>Math calculations</li>
+          <li>Telling jokes</li>
+          <li>Simulated weather info</li>
+          <li>Current time and date</li>
+        </ul>
+        <p>How can I help you today?</p>
+        <div class="message-time">Just now</div>
+      </div>
+      <div class="clearfix"></div>
+      <div class="typing-indicator" id="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="clearfix"></div>
     </div>
-    
+
     <div class="input-area">
-        <div class="suggestions">
-            <button class="suggestion-button" onclick="suggestQuestion('What can you do?')">What can you do?</button>
-            <button class="suggestion-button" onclick="suggestQuestion('Tell me a joke')">Tell me a joke</button>
-            <button class="suggestion-button" onclick="suggestQuestion('What is the weather like?')">Weather info</button>
-            <button class="suggestion-button" onclick="suggestQuestion('What is 42 + 18?')">Calculate 42 + 18</button>
-            <button class="suggestion-button" onclick="suggestQuestion('What time is it?')">Current time</button>
-        </div>
-        
-        <div class="input-container">
-            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
-            <button id="send-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
-        </div>
-        <div class="error-message" id="error-message"></div>
+      <div class="suggestions">
+        <button
+          class="suggestion-button"
+          onclick="suggestQuestion('What can you do?')"
+        >
+          What can you do?
+        </button>
+        <button
+          class="suggestion-button"
+          onclick="suggestQuestion('Tell me a joke')"
+        >
+          Tell me a joke
+        </button>
+        <button
+          class="suggestion-button"
+          onclick="suggestQuestion('What is the weather like?')"
+        >
+          Weather info
+        </button>
+        <button
+          class="suggestion-button"
+          onclick="suggestQuestion('What is 42 + 18?')"
+        >
+          Calculate 42 + 18
+        </button>
+        <button
+          class="suggestion-button"
+          onclick="suggestQuestion('What time is it?')"
+        >
+          Current time
+        </button>
+      </div>
+
+      <div class="input-container">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Type your message here..."
+          autocomplete="off"
+        />
+        <button id="send-button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="error-message" id="error-message"></div>
     </div>
 
     <script>
@@ -430,7 +506,7 @@
                     themeToggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
                 }
             });
-
+    
             // Function to handle user input
             sendButton.addEventListener('click', function() {
                 const userMessage = userInput.value.trim();
@@ -440,13 +516,13 @@
                     handleBotResponse(userMessage);
                 }
             });
-
+    
             // Function to suggest a question based on button click
-            function suggestQuestion(question) {
+            window.suggestQuestion = function(question) {
                 userInput.value = question;
                 sendButton.click();
             }
-
+    
             // Function to add message to chat container
             function addMessage(message, sender) {
                 const messageDiv = document.createElement('div');
@@ -455,14 +531,14 @@
                 chatContainer.appendChild(messageDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
             }
-
+    
             // Function to simulate bot response
             function handleBotResponse(userMessage) {
                 typingIndicator.style.display = 'block';
                 setTimeout(function() {
                     typingIndicator.style.display = 'none';
                     let botResponse = 'I didn\'t quite get that, can you rephrase?'; // Default response
-
+    
                     if (userMessage.toLowerCase().includes('hello') || userMessage.toLowerCase().includes('hi')) {
                         botResponse = 'Hello there! How can I assist you today?';
                     } else if (userMessage.toLowerCase().includes('joke')) {
@@ -475,11 +551,12 @@
                         const calcResult = eval(userMessage.split(' ').slice(-3).join(' '));
                         botResponse = `The result is: ${calcResult}`;
                     }
-
+    
                     addMessage(botResponse, 'bot');
                 }, 1500);
             }
         });
     </script>
-</body>
+    
+  </body>
 </html>
